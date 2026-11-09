@@ -1,0 +1,2 @@
+import { Construction } from 'lucide-react';
+export default function PlaceholderPage({title,description='This module is prepared for a later sprint.'}) { return <><div className="page-title"><h1>{title}</h1><p>Smart Fleet Management</p></div><div className="card empty-state"><Construction size={35}/><h2>Coming in a future sprint</h2><p>{description}</p></div></>; }

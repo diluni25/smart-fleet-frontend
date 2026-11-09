@@ -1,0 +1,3 @@
+import { Link } from 'react-router-dom';
+import BookingForm from '../components/BookingForm.jsx';
+export default function CreateBooking(){return <><div className="breadcrumbs"><Link to="/dashboard">Dashboard</Link><span>/</span><span>Bookings</span><span>/</span><strong>Create Booking</strong></div><div className="page-title"><span className="eyebrow">TRANSPORTATION REQUEST</span><h1>Create New Booking</h1><p>Request a transfer of goods between stores.</p></div><BookingForm/></>; }
