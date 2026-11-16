@@ -1,0 +1,394 @@
+/* Booking Queue Page */
+
+.bq-page {
+  width: 100%;
+  color: #151c2d;
+}
+
+.bq-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.bq-eyebrow {
+  color: #52636d;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.bq-heading h1 {
+  font-size: 32px;
+  margin: 8px 0;
+  font-weight: 750;
+}
+
+.bq-heading p {
+  color: #68767d;
+  font-size: 14px;
+  margin: 0;
+}
+
+.bq-btn-primary {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 9px;
+  background: #008348;
+  color: white;
+  border: 0;
+  padding: 12px 18px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.bq-btn-primary:hover {
+  background: #006f3d;
+}
+
+/* Statistics */
+
+.bq-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.bq-stat-card {
+  background: white;
+  border: 1px solid #dce6e5;
+  padding: 20px;
+  border-radius: 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bq-stat-card span {
+  color: #6b7975;
+  font-size: 13px;
+}
+
+.bq-stat-card strong {
+  font-size: 29px;
+  color: #102d22;
+}
+
+/* Booking Table Card */
+
+.bq-card {
+  background: white;
+  border: 1px solid #dce6e5;
+  border-radius: 9px;
+  overflow: hidden;
+}
+
+.bq-card-header {
+  padding: 20px;
+}
+
+.bq-card-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 20px;
+}
+
+.bq-card-header svg {
+  color: #008348;
+}
+
+.bq-filters {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 0 20px 20px;
+}
+
+.bq-search {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #ccdce1;
+  border-radius: 5px;
+  padding: 0 12px;
+  height: 41px;
+}
+
+.bq-search svg {
+  color: #6c7b7a;
+}
+
+.bq-search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  background: transparent;
+}
+
+.bq-filters select {
+  height: 41px;
+  min-width: 155px;
+  padding: 0 12px;
+  border: 1px solid #ccdce1;
+  border-radius: 5px;
+  background: white;
+}
+
+/* Table */
+
+.bq-table-wrapper {
+  overflow-x: auto;
+}
+
+.bq-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+}
+
+.bq-table thead {
+  background: #e4f3eb;
+}
+
+.bq-table th {
+  padding: 15px 14px;
+  color: #234035;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.bq-table td {
+  padding: 15px 14px;
+  border-bottom: 1px solid #e8eeee;
+}
+
+.bq-table tbody tr:hover {
+  background: #f7fbf9;
+}
+
+.bq-booking-id {
+  font-weight: 700;
+  color: #007c45;
+}
+
+.bq-route {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 190px;
+}
+
+.bq-route svg {
+  flex-shrink: 0;
+  color: #008348;
+}
+
+/* Status Badges */
+
+.bq-status {
+  display: inline-block;
+  padding: 6px 11px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.bq-status.pending {
+  background: #fff2d9;
+  color: #ad6a00;
+}
+
+.bq-status.approved {
+  background: #e1f3eb;
+  color: #007342;
+}
+
+.bq-status.completed {
+  background: #dceaf8;
+  color: #205d9a;
+}
+
+.bq-status.cancelled {
+  background: #fce8e8;
+  color: #b83b3b;
+}
+
+/* Table Action Buttons */
+
+.bq-actions-cell {
+  display: flex;
+  gap: 8px;
+}
+
+.bq-actions-cell button {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  background: white;
+  border: 1px solid #dce6e5;
+  border-radius: 5px;
+  color: #416459;
+  cursor: pointer;
+}
+
+.bq-actions-cell button:hover:not(:disabled) {
+  color: #008348;
+  background: #e8f5ed;
+}
+
+.bq-actions-cell button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.bq-empty {
+  padding: 45px 20px;
+  text-align: center;
+  color: #718078;
+}
+
+.bq-table-footer {
+  padding: 16px 20px;
+  font-size: 12px;
+  color: #718078;
+}
+
+/* Notices */
+
+.bq-notice {
+  margin-top: 15px;
+  background: #e4f3eb;
+  color: #006d3f;
+  padding: 14px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+/* Cancel and Details Modal */
+
+.bq-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(12, 26, 22, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.bq-modal {
+  position: relative;
+  background: white;
+  width: 100%;
+  max-width: 430px;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.12);
+  box-sizing: border-box;
+}
+
+.bq-modal h2 {
+  font-size: 23px;
+  margin: 16px 0 12px;
+}
+
+.bq-modal p {
+  color: #53635f;
+  line-height: 1.6;
+}
+
+.bq-modal-close {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.bq-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.bq-btn-secondary {
+  padding: 11px 15px;
+  border: 1px solid #d5e2e1;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+}
+
+.bq-btn-danger {
+  padding: 11px 15px;
+  border: none;
+  border-radius: 6px;
+  background: #c53939;
+  color: white;
+  cursor: pointer;
+}
+
+.bq-details-modal {
+  max-width: 500px;
+}
+
+.bq-detail-list {
+  margin-bottom: 20px;
+}
+
+.bq-detail-list p {
+  padding: 8px 0;
+  margin: 0;
+  border-bottom: 1px solid #edf0ef;
+}
+
+/* Responsive */
+
+@media (max-width: 1000px) {
+  .bq-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .bq-heading {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .bq-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .bq-stat-card {
+    padding: 14px;
+  }
+
+  .bq-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .bq-heading h1 {
+    font-size: 26px;
+  }
+
+  .bq-modal-actions {
+    flex-direction: column;
+  }
+}

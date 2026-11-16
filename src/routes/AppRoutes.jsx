@@ -3,6 +3,8 @@ import MainLayout from "../components/layout/MainLayout.jsx";
 import Dashboard from "../features/dashboard/pages/Dashboard.jsx";
 import CreateBooking from "../features/bookings/pages/CreateBooking.jsx";
 import PlaceholderPage from "../components/ui/PlaceholderPage.jsx";
+import BookingHistory from "../features/bookings/pages/BookingHistory.jsx";
+
 export default function AppRoutes() {
   return (
     <Routes>
@@ -19,6 +21,7 @@ export default function AppRoutes() {
             />
           }
         />
+        <Route path="/bookings" element={<BookingHistory />} />
         <Route path="/stores" element={<PlaceholderPage title="Stores" />} />
         <Route
           path="/vehicles"
