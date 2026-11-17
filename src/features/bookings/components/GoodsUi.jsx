@@ -1,0 +1,9 @@
+import {Check, ClipboardList, Package, Truck, Warehouse, AlertTriangle, CalendarDays, Clock3, FileText} from 'lucide-react';
+import {storeName} from '../data/mockData';
+export function GoodsBar({booking, status, warning=false}) {return <div className="goods-identity"><span><Package size={17}/>{booking.id}</span><span><ClipboardList size={17}/>{booking.tripId||'Trip pending'}</span><span><Truck size={17}/>{booking.vehicle||'Vehicle pending'}</span><span className={`goods-state ${warning?'goods-state-warning':''}`}>{warning&&<AlertTriangle size={14}/>} {status}</span><span className="goods-route"><Warehouse size={17}/>{storeName(booking.origin)} → {storeName(booking.destination)}</span></div>}
+export function GoodsStepper({number, onDown, onUp, disabled=false, label}){return <div className="goods-stepper"><button aria-label={`Decrease ${label}`} type="button" disabled={disabled||Number(number)<=0} onClick={onDown}>−</button><strong>{number}</strong><button aria-label={`Increase ${label}`} type="button" disabled={disabled} onClick={onUp}>+</button></div>}
+export function GoodsBottom({children}) {return <div className="goods-bottom">{children}</div>}
+export function GoodsSteps(){return <div className="goods-steps"><span className="goods-done"><Check size={17}/> <b>01</b> Goods prepared</span><i/><span className="goods-active"><b>02</b> Handover</span><i className="goods-light"/><span className="goods-step-last">03&nbsp; Receipt</span></div>}
+export function StatusTag({matched, difference=0, unit=''}){return <span className={`goods-tag ${matched?'goods-tag-ok':'goods-tag-warn'}`}>{matched?<><Check size={15}/> Matched</>:`${difference>0?'+':''}${difference} ${unit}`}</span>}
+export function GoodsCard({title, children, className=''}){return <section className={`goods-card ${className}`}><h2>{title}</h2>{children}</section>}
+export {CalendarDays, Clock3, FileText};

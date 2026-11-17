@@ -5,14 +5,17 @@ import { Plus, Search, ClipboardList } from "lucide-react";
 
 import BookingTable from "../components/BookingTable";
 import CancelBookingModal from "../components/CancelBookingModal";
-import { mockBookings } from "../data/mockBookings";
+import { useBookings } from "../context/BookingContext.jsx";
+import { storeName } from "../data/mockData.js";
 
 import "../../../styles/booking-history.css";
 
 export default function BookingHistory() {
   const navigate = useNavigate();
 
-  const [bookings, setBookings] = useState(mockBookings);
+  const { bookings, updateBooking } = useBookings();
+  const queueBookings = bookings.filter(b => !["Completed", "Cancelled"].includes(b.status));
+  const displayBookings = queueBookings.map(b => ({ ...b, origin: storeName(b.origin), destination: storeName(b.destination), date: b.transferDate, time: b.timeWindow, items: b.items.length }));
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("All");
   const [cancelBooking, setCancelBooking] = useState(null);
@@ -20,7 +23,7 @@ export default function BookingHistory() {
   const [notice, setNotice] = useState("");
 
   const filteredBookings = useMemo(() => {
-    return bookings.filter((booking) => {
+    return displayBookings.filter((booking) => {
       const keyword = search.toLowerCase().trim();
 
       const matchesSearch =
@@ -34,9 +37,9 @@ export default function BookingHistory() {
     });
   }, [bookings, search, status]);
 
-  const pendingCount = bookings.filter((b) => b.status === "Pending").length;
+  const pendingCount = queueBookings.filter((b) => b.status === "Pending").length;
 
-  const approvedCount = bookings.filter((b) => b.status === "Approved").length;
+  const approvedCount = queueBookings.filter((b) => b.status === "Approved").length;
 
   const completedCount = bookings.filter(
     (b) => b.status === "Completed",
@@ -45,13 +48,7 @@ export default function BookingHistory() {
   function handleCancel() {
     if (!cancelBooking) return;
 
-    setBookings((prev) =>
-      prev.map((booking) =>
-        booking.id === cancelBooking.id
-          ? { ...booking, status: "Cancelled" }
-          : booking,
-      ),
-    );
+    updateBooking(cancelBooking.id, { status: "Cancelled" });
 
     setNotice(`${cancelBooking.id} cancelled in this frontend demo.`);
 
@@ -59,14 +56,11 @@ export default function BookingHistory() {
   }
 
   function handleView(booking) {
-    setSelectedBooking(booking);
+    navigate(`/bookings/${booking.id}`);
   }
 
   function handleEdit(booking) {
-    // Edit page will be connected in next step.
-    setNotice(
-      `Edit Booking ${booking.id} will be connected to the Edit Booking page.`,
-    );
+    navigate(`/bookings/${booking.id}/edit`);
   }
 
   return (
@@ -93,7 +87,7 @@ export default function BookingHistory() {
       <div className="bq-stats">
         <div className="bq-stat-card">
           <span>Total Bookings</span>
-          <strong>{bookings.length}</strong>
+          <strong>{queueBookings.length}</strong>
         </div>
 
         <div className="bq-stat-card">
@@ -153,7 +147,7 @@ export default function BookingHistory() {
         />
 
         <div className="bq-table-footer">
-          Showing {filteredBookings.length} of {bookings.length} bookings
+          Showing {filteredBookings.length} of {queueBookings.length} bookings
         </div>
       </section>
 

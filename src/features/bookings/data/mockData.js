@@ -33,3 +33,7 @@ export const timeWindows = [
   "14:00–14:45",
   "15:00–15:45",
 ];
+
+export const storeName = (id) => stores.find(s => s.id === id)?.name || id || "Not selected";
+export const itemName = (id) => catalog.find(i => i.id === id)?.name || id;
+export const itemUnit = (id) => catalog.find(i => i.id === id)?.unit || "units";

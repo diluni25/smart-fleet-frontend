@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useBookings } from "../context/BookingContext.jsx";
 
 import {
   ArrowLeft,
@@ -34,6 +36,8 @@ const initialBooking = {
 };
 
 export default function CreateBooking() {
+  const navigate = useNavigate();
+  const { addBooking } = useBookings();
   const [booking, setBooking] = useState(initialBooking);
 
   const [selectedId, setSelectedId] = useState("ITM-024");
@@ -139,6 +143,13 @@ export default function CreateBooking() {
     setNotice(
       "Booking details are valid. This is a frontend preview; no booking has been submitted.",
     );
+  }
+
+  function confirmBooking() {
+    const nextErrors = validateBooking(booking, catalog);
+    if (Object.keys(nextErrors).length) { setErrors(nextErrors); setReview(false); return; }
+    const id = addBooking({ ...booking, items: booking.items.map(item => ({ ...item })) });
+    navigate(`/bookings/${id}`);
   }
 
   // Frontend-only draft
@@ -282,7 +293,7 @@ export default function CreateBooking() {
           })}
 
           <div className="bk-stock">
-            Frontend review only — backend submission will be implemented later.
+            Frontend demo — Confirm Booking saves to this browser only; backend integration comes later.
           </div>
         </section>
       )}
@@ -308,9 +319,13 @@ export default function CreateBooking() {
           Back
         </button>
 
-        {!review && (
+        {!review ? (
           <button type="button" className="bk-next" onClick={reviewBooking}>
             Review booking
+          </button>
+        ) : (
+          <button type="button" className="bk-next" onClick={confirmBooking}>
+            Confirm Booking
           </button>
         )}
       </div>

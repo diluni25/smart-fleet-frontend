@@ -9,11 +9,13 @@ import {
   ClipboardCheck,
   TriangleAlert,
   ChartNoAxesColumn,
+  History,
 } from "lucide-react";
 
 const menu = [
   { to: "/bookings", label: "Booking Queue", icon: ClipboardList },
   { to: "/bookings/create", label: "Create booking", icon: CirclePlus },
+  { to: "/bookings/history", label: "Booking History", icon: History },
   { to: "/trips", label: "Trip Planner", icon: Route },
   { to: "/vehicles", label: "Transport Units", icon: Truck },
   { to: "/drivers-shifts", label: "Drivers & Shifts", icon: BriefcaseBusiness },
