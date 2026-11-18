@@ -1,46 +1,24 @@
-# Smart Fleet Frontend Starter (React + Vite)
+# LOGIROUTE Backend – Sprint 1
 
-A starter for the Smart Fleet and Store Transportation Management System.
+Express + MongoDB starter, with Item model, CRUD routes and error handling. This is **backend-only**; your frontend remains unchanged.
 
-## Requirements
-- Node.js 20.19+ or 22.12+ (a supported Vite 6 version also works with Node 18+)
-- npm
+## Setup
+1. Install Node.js and run a local MongoDB server, or use a MongoDB Atlas URI.
+2. Open a terminal in this folder and run `npm install`.
+3. Copy `.env.example` to `.env` and set `MONGODB_URI`.
+4. Run `npm run dev`.
+5. Check `http://localhost:5000/api/health`.
 
-## Quick start
-```bash
-npm install
-npm run dev
-```
-Open the localhost URL shown by Vite (usually http://localhost:5173).
+## Item APIs
+- `GET /api/items` – list all items
+- `GET /api/items/:id` – get item by MongoDB ID
+- `POST /api/items` – create item
+- `PUT /api/items/:id` – update item
+- `DELETE /api/items/:id` – delete item
 
-## Production build
-```bash
-npm run build
-npm run preview
-```
-
-## What's included
-- React, Vite, React Router, Lucide icons
-- Responsive sidebar, header, shared layout
-- Dashboard starter
-- `/bookings/create` working form with React state, validation, reset, live summary, and a demo success message
-- Mock data for the three initial stores and example items
-- Placeholder pages for future modules
-
-## Note on behavior
-This is a **frontend-only** starter. The form checks input but **does not send a request or save a booking**. The demo items and stores are illustrative, not official company master data. Replace them with API data when the backend is available. Server-side validation and role permissions must be added before production use.
-
-## Structure
-```
-src/
-  assets/
-  components/layout/    # Shared sidebar, header and page layout
-  components/ui/        # Reusable field and placeholder components
-  features/dashboard/   # Dashboard starter
-  features/bookings/    # Booking form, mock data and validation
-  routes/               # React Router configuration
-  styles/               # Global styles
+Example POST JSON:
+```json
+{"code":"ITM-024","name":"Printer Paper A4","unit":"Carton","stock":60}
 ```
 
-## Next sprint
-Multiple item rows, booking lists/history, editing/cancellation, handover and receipt confirmation are intentionally not implemented.
+This starter does not yet include authentication or authorization; do not deploy its write APIs publicly. Booking APIs and Goods Confirmation are Sprint 2 tasks.
