@@ -1,0 +1,54 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Store schedule · RelayOps</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="css/style.css"></head><body>
+<main class="wrap">
+<p class="crumb">WORKSPACE / STORE SCHEDULE</p>
+<div class="row sp"><div><h1>Store schedule</h1><p class="sub">Coordinate loading and unloading, without overlapping your store’s capacity.</p></div><button class="btn p" id="new">+ Reserve a slot</button></div>
+<div class="banner red" id="ban" hidden></div>
+<div class="grid g2" style="margin-top:16px">
+<div class="card" style="padding:0"><div class="row sp" style="padding:16px 20px"><div><h2>Wednesday, 04 November</h2><span class="mut" id="cnt"></span></div><span><span class="tag g">Loading</span> <span class="tag b">Unloading</span> <span class="tag r">Conflict</span></span></div><div class="tw"><div class="cal" id="cal"></div></div><p class="mut" style="padding:12px 20px;margin:0" id="rules"></p></div>
+<aside><div class="card" id="det"></div><div class="card" id="fix" style="margin-top:16px" hidden></div></aside></div>
+<dialog id="dlg"><form id="frm" method="dialog"><h2>Reserve a slot</h2><div class="f" style="margin-top:14px">
+<div><label for="fs">Store</label><select id="fs"></select></div><div><label for="ft">Type</label><select id="ft"><option>Loading</option><option>Unloading</option></select></div>
+<div><label for="fa">Start</label><input id="fa" type="time" step="1800" required></div><div><label for="fb">End</label><input id="fb" type="time" step="1800" required></div>
+<div class="full"><label for="fv">Vehicle</label><select id="fv"></select></div></div>
+<p class="err" id="fe" role="alert"></p><div class="row" style="justify-content:flex-end"><button class="btn" value="x" formnovalidate>Cancel</button><button class="btn p" id="ok" value="y">Reserve slot</button></div></form></dialog>
+</main>
+<script src="js/layout.js"></script>
+<script>
+const d=db(),RH=28;let sel=d.res.find(r=>r.id==='TRP-1042');
+const bounds=()=>[Math.min(...d.stores.map(s=>t2m(s.open))),Math.max(...d.stores.map(s=>t2m(s.close)))];
+const nm=id=>(d.stores.find(s=>s.id===id)||{}).name||id;
+function draw(){
+ const[a,b]=bounds(),H=(b-a)/30*RH,start=Math.floor(a/60);
+ $('#cal').innerHTML='<div class="hc"></div>'+d.stores.map(s=>`<div class="hc">${esc(s.name)}<br><span class="mut" style="font-weight:400;font-size:11px">Dock 01 · ${s.docks} vehicle${s.docks>1?'s':''} at a time</span></div>`).join('')
+ +`<div class="tc">${Array.from({length:Math.ceil((b-a)/60)},(_,i)=>`<div>${m2t((start+i)*60)}</div>`).join('')}</div>`
+ +d.stores.map(s=>`<div class="col" data-s="${s.id}" style="height:${H}px"><div style="position:absolute;top:0;left:0;right:0;height:${(t2m(s.open)-a)/30*RH}px;background:#f0f2f1;pointer-events:none"></div><div style="position:absolute;bottom:0;left:0;right:0;height:${(b-t2m(s.close))/30*RH}px;background:#f0f2f1;pointer-events:none"></div>`+
+  d.res.map((r,i)=>r.store!==s.id?'':`<div class="ev ${r.st==='blocked'?'blocked':r.type} ${r===sel?'sel':''}" tabindex="0" data-i="${i}" style="top:${(t2m(r.s)-a)/30*RH}px;height:${(t2m(r.e)-t2m(r.s))/30*RH-2}px"><b>${r.id}</b> ${r.st==='blocked'?'· Blocked':'· '+r.veh}<br>${r.s}–${r.e}</div>`).join('')+'</div>').join('');
+ $('#cnt').textContent=d.res.filter(r=>r.st!=='blocked').length+' reservations · '+d.res.filter(r=>r.st==='blocked').length+' blocked proposal · IST (UTC+5:30)';
+ $('#rules').textContent='Store rules: '+m2t(a)+'–'+m2t(b)+' daily · 1 vehicle per dock · No overlapping reservations · Click an empty cell to reserve.';
+ const bl=d.res.find(r=>r.st==='blocked'),ov=bl&&d.res.find(r=>r.st!=='blocked'&&r.store===bl.store&&overlap(r,bl));
+ $('#ban').hidden=!bl;$('#fix').hidden=!bl;
+ if(bl){const nf=nextFree(d,bl.store,t2m(bl.e)-t2m(bl.s),t2m(bl.s));
+  $('#ban').innerHTML=`<div><b>1 conflict · ${esc(nm(bl.store))} unloading dock</b><br><span class="mut">Proposed ${bl.id} overlaps ${ov?ov.id:'another reservation'}. The new reservation is blocked until rescheduled.</span></div>`;
+  $('#fix').innerHTML=`<h2>Resolve slot conflict</h2><p><span class="tag r">${bl.id} · Not confirmed</span></p><p class="mut">Proposed ${bl.s}–${bl.e}${ov?' overlaps '+ov.id+' until '+ov.e:''}.</p>${nf?`<p class="tag g" style="display:block;padding:10px;border-radius:8px">Next available: <b>${nf.s}–${nf.e}</b></p><button class="btn p" id="rs">Reschedule proposal</button>`:'<p class="err">No free slot left today.</p>'}`;
+  if(nf)$('#rs').onclick=()=>{bl.s=nf.s;bl.e=nf.e;bl.st='confirmed';d.activity.unshift([m2t(new Date().getHours()*60+new Date().getMinutes()),'Slot rescheduled','Alex Morgan · '+bl.id]);save(d);draw()}}
+ const r=sel;$('#det').innerHTML=r?`<div class="row sp"><span class="mut">Selected reservation</span>${r.st==='blocked'?'<span class="tag r">Blocked</span>':r.id==='TRP-1042'?'<span class="tag a">Delayed</span>':'<span class="tag g">Confirmed</span>'}</div><h2 style="font-size:22px;margin:8px 0">${r.id}</h2><p class="mut">${esc(nm(r.store))} · Dock 01 · ${r.type}</p><p><span class="mut">Reservation</span><br><b>${r.s}–${r.e} · ${t2m(r.e)-t2m(r.s)} minutes</b></p><p><span class="mut">Vehicle</span><br><b>${r.veh}</b></p>${r.st!=='blocked'?'<button class="btn d" id="del">Cancel reservation</button>':''}`:'<p class="mut">Select a reservation to see its details.</p>';
+ if(r&&$('#del'))$('#del').onclick=()=>{if(!confirm('Cancel '+r.id+' at '+nm(r.store)+'?'))return;d.res.splice(d.res.indexOf(r),1);sel=null;save(d);draw()};
+}
+$('#cal').onclick=e=>{const ev=e.target.closest('.ev'),col=e.target.closest('.col');
+ if(ev){sel=d.res[ev.dataset.i];draw()}else if(col){openDlg(col.dataset.s,bounds()[0]+Math.floor((e.clientY-col.getBoundingClientRect().top)/RH)*30)}};
+$('#cal').onkeydown=e=>{if(e.key==='Enter'&&e.target.dataset.i){sel=d.res[e.target.dataset.i];draw()}};
+function openDlg(s,m){
+ if(!$('#fs').options.length)d.stores.forEach(x=>$('#fs').add(new Option(x.name,x.id)));
+ if(!$('#fv').options.length)d.vehicles.filter(v=>v.status!=='Maintenance').forEach(v=>$('#fv').add(new Option(v.reg+' · '+v.cap+' crates',v.reg)));
+ m=m??bounds()[0];$('#fs').value=s||d.stores[0].id;$('#fa').value=m2t(m);$('#fb').value=m2t(m+30);$('#fe').textContent='';$('#dlg').showModal()}
+$('#new').onclick=()=>openDlg();
+$('#ok').onclick=e=>{e.preventDefault();const st=d.stores.find(x=>x.id===$('#fs').value),er=$('#fe'),
+ r={id:'TRP-'+(1054+d.res.length),veh:$('#fv').value,store:st.id,s:$('#fa').value,e:$('#fb').value,type:$('#ft').value,st:'confirmed'};
+ if(!r.s||!r.e||t2m(r.e)<=t2m(r.s))return er.textContent='End time must be after the start time.';
+ if(t2m(r.s)<t2m(st.open)||t2m(r.e)>t2m(st.close))return er.textContent=`${st.name} is open ${st.open}–${st.close}. Pick a slot inside those hours.`;
+ if(t2m(r.e)-t2m(r.s)<st.minSlot)return er.textContent=`Slots must be at least ${st.minSlot} minutes.`;
+ if(d.res.some(x=>x.st!=='blocked'&&x.veh===r.veh&&overlap(x,r)))return er.textContent=r.veh+' is already booked in that window.';
+ if(conflicts(d,r)){const nf=nextFree(d,st.id,t2m(r.e)-t2m(r.s),t2m(r.s));return er.textContent='That slot overlaps another reservation.'+(nf?` Next available: ${nf.s}–${nf.e}.`:'')}
+ d.res.push(r);save(d);sel=r;$('#dlg').close();draw()};
+draw();
+</script></body></html>

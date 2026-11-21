@@ -1,1 +1,33 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>RelayOps | Transport Control</title></head><body><div id="root"></div><script type="module" src="/src/main.jsx"></script></body></html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Operations overview · RelayOps</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="css/style.css"></head><body>
+<main class="wrap">
+<p class="crumb">WORKSPACE / OVERVIEW</p>
+<div class="row sp"><div><h1>Operations overview</h1><p class="sub">A clear view of your fleet, stores, and today’s movements.</p></div>
+<div class="row"><select id="store" aria-label="Store" style="width:auto"><option value="">All stores</option></select><span class="tag g">Live operations</span></div></div>
+<div class="grid g5" id="kpi" style="margin-top:16px"></div>
+<div class="banner" id="ban"></div>
+<div class="grid g2">
+<div class="card"><h2>Store activity</h2><p class="sub">Today’s planned movements</p><div class="tw"><table id="st"><thead><tr><th>Store</th><th>Trips</th><th>Next slot</th><th>Dock status</th></tr></thead><tbody></tbody></table></div></div>
+<div class="card"><h2>Fleet utilization</h2><p class="sub">Allocated capacity · last 7 days</p><b style="font-size:30px">76%</b> <span class="tag g">↑ 8% vs. previous week</span>
+<div class="bars" aria-hidden="true"><span style="height:55%"></span><span style="height:68%"></span><span style="height:60%"></span><span style="height:75%"></span><span style="height:65%"></span><span style="height:80%"></span><span style="height:72%"></span></div></div></div>
+<div class="grid g2" style="margin-top:16px">
+<div class="card"><div class="row sp"><h2>Trips to watch</h2><a href="schedule.html">View schedule →</a></div><div class="tw"><table id="tr"><thead><tr><th>Trip</th><th>Route / vehicle</th><th>Next slot</th><th>Status</th></tr></thead><tbody></tbody></table></div></div>
+<div class="card"><div class="row sp"><h2>Activity summary</h2><a href="#">Audit log →</a></div><ul class="act" id="act"></ul></div></div>
+</main>
+<script src="js/layout.js"></script>
+<script>
+const d=db(),sel=$('#store');d.stores.forEach(s=>sel.add(new Option(s.name,s.id)));
+function draw(){
+ const f=sel.value,rs=d.res.filter(r=>!f||r.store===f),v=d.vehicles,n=s=>v.filter(x=>x.status===s).length,
+ del=v.filter(x=>x.avail.startsWith('Delayed')).length,blk=d.res.filter(r=>r.st==='blocked').length;
+ $('#kpi').innerHTML=[['Active vehicles',v.length-n('Maintenance'),'of '+v.length+' company vehicles'],['Today’s trips',new Set(rs.map(r=>r.id)).size,n('In transit')+' in transit · '+n('Scheduled')+' scheduled'],['Pending bookings',6,'2 awaiting allocation'],['Delayed trips',del,'Action needed','alert'],['Completed trips',8,'On track for today']]
+ .map(([a,b,c,k])=>`<div class="card kpi ${k||''}"><span class="mut">${a}</span><b>${b}</b><span class="mut">${c}</span></div>`).join('');
+ $('#ban').innerHTML=(del+blk)?`<div><b>${del} delayed trips and ${blk} slot conflict need attention</b><br><span class="mut">TRP-1042 is 20 min late. A proposed Northgate reservation overlaps its revised unloading slot.</span></div><a class="btn" href="schedule.html">Review schedule</a>`:'<b>No exceptions today</b>';
+ $('#st tbody').innerHTML=d.stores.filter(s=>!f||s.id===f).map(s=>{
+  const x=d.res.filter(r=>r.store===s.id),c=x.filter(r=>r.st==='blocked').length,nx=x.filter(r=>r.st!=='blocked').sort((a,b)=>t2m(a.s)-t2m(b.s))[0];
+  return `<tr><td><b>${esc(s.name)}</b><br><span class="mut">${esc(s.type)}</span></td><td>${x.length}</td><td>${nx?nx.s+' · '+nx.type:'—'}</td><td><span class="tag ${c?'r':'g'}">${c?c+' conflict':'Available'}</span></td></tr>`}).join('');
+ $('#tr tbody').innerHTML=[['TRP-1042','Westfield → Northgate','RLY 108','10:30','Delayed · 20 min','r'],['TRP-1045','Central → Westfield','RLY 312','11:00','In transit','b'],['TRP-1048','Central → Northgate → Westfield','RLY 204','13:00','Scheduled','']]
+ .map(r=>`<tr><td><a href="schedule.html">${r[0]}</a></td><td>${r[1]}<br><span class="mut">${r[2]}</span></td><td>${r[3]}</td><td><span class="tag ${r[5]}">${r[4]}</span></td></tr>`).join('');
+ $('#act').innerHTML=d.activity.map(a=>`<li><span><b>${esc(a[1])}</b><br><span class="mut">${esc(a[2])}</span></span><span class="mut">${a[0]}</span></li>`).join('');
+}
+sel.onchange=draw;draw();
+</script></body></html>

@@ -1,0 +1,32 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vehicle form · RelayOps</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="css/style.css"></head><body>
+<main class="wrap" style="max-width:820px">
+<p class="crumb" id="cr"></p><div class="row sp"><div><h1 id="h"></h1><p class="sub">Keep fleet details and allocation rules up to date.</p></div><a class="btn" href="vehicles.html">← Back to vehicles</a></div>
+<form class="card" id="f" style="margin-top:16px" novalidate><h2>Vehicle details</h2><div class="f" style="margin:14px 0 22px">
+<div><label for="reg">Registration number *</label><input id="reg" required><p class="err" id="e-reg"></p></div>
+<div><label for="type">Vehicle type *</label><select id="type"><option>Medium truck</option><option>Light truck</option><option>Cargo van</option></select></div>
+<div><label for="cap">Quantity capacity *</label><input id="cap" type="number" min="1" required><p class="err" id="e-cap"></p></div>
+<div><label for="unit">Unit of measure *</label><select id="unit"><option>Crates</option></select></div></div>
+<h2>Status &amp; assignment</h2><div class="f" style="margin:14px 0 22px">
+<div><label for="status">Operational status *</label><select id="status"><option>Available</option><option>In transit</option><option>Scheduled</option><option>Maintenance</option></select></div>
+<div><label for="store">Home store *</label><select id="store"></select></div>
+<div class="full"><label for="driver">Assigned driver</label><input id="driver" placeholder="Unassigned"></div></div>
+<h2>Availability</h2><div class="f" style="margin:14px 0"><div><label for="from">Available from *</label><input id="from" type="time" required></div><div><label for="until">Available until *</label><input id="until" type="time" required><p class="err" id="e-t"></p></div></div>
+<div class="banner" id="prot" hidden></div>
+<div class="row sp"><span class="mut">All times in IST (UTC+5:30)</span><span class="row"><a class="btn" href="vehicles.html">Cancel</a><button class="btn p">Save changes</button></span></div></form>
+</main>
+<script src="js/layout.js"></script>
+<script>
+const d=db(),id=new URLSearchParams(location.search).get('id'),edit=id!==null&&!!d.vehicles[id],v=edit?d.vehicles[id]:V('','Light truck',80,'Available','Rest of day','',d.stores[0].name);
+d.stores.forEach(s=>$('#store').add(new Option(s.name,s.name)));
+$('#h').textContent=edit?'Edit vehicle':'Add vehicle';$('#cr').textContent='WORKSPACE / VEHICLES / '+(edit?v.reg.toUpperCase()+' / EDIT':'NEW');
+['reg','type','cap','unit','status','store','driver','from','until'].forEach(k=>$('#'+k).value=v[k]);
+const oldReg=v.reg,trips=edit?d.res.filter(r=>r.veh===oldReg&&r.st!=='blocked'):[];
+if(trips.length){$('#prot').hidden=false;$('#prot').innerHTML='<div><b>Existing trips protected</b><br><span class="mut">'+trips.map(r=>r.id+' '+r.s+'–'+r.e).join(', ')+' reserve time on this vehicle. Availability changes cannot exclude a scheduled trip.</span></div>'}
+$('#f').onsubmit=e=>{e.preventDefault();let bad=false;const g=k=>$('#'+k).value.trim(),E=(k,m)=>{$('#e-'+k).textContent=m;if(m)bad=true};
+ E('reg',!g('reg')?'Enter a registration number.':d.vehicles.some((x,i)=>x.reg.toLowerCase()===g('reg').toLowerCase()&&String(i)!==id)?'This registration is already in the fleet.':'');
+ E('cap',!(+g('cap')>0)?'Capacity must be greater than 0.':'');
+ E('t',!g('from')||!g('until')||g('until')<=g('from')?'End time must be after the start time.':trips.some(r=>r.s<g('from')||r.e>g('until'))?'A scheduled trip falls outside this window. Reschedule it first.':'');
+ if(bad)return;Object.assign(v,{reg:g('reg'),type:g('type'),cap:+g('cap'),unit:g('unit'),status:g('status'),store:g('store'),driver:g('driver'),from:g('from'),until:g('until')});
+ d.res.forEach(r=>{if(edit&&r.veh===oldReg)r.veh=v.reg});if(!edit)d.vehicles.push(v);
+ d.activity.unshift([m2t(new Date().getHours()*60+new Date().getMinutes()),'Vehicle '+(edit?'updated':'added'),'Alex Morgan · '+v.reg]);save(d);location.href='vehicles.html'};
+</script></body></html>

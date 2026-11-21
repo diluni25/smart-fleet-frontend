@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import Sidebar from './Sidebar.jsx';
+import DispatchSidebar from './DispatchSidebar.jsx';
 import Header from './Header.jsx';
 import Footer from './Footer.jsx';
 
@@ -10,7 +10,7 @@ export default function MainLayout() {
   return (
     <div className="app-shell">
       <div className={open ? 'sidebar-wrap open' : 'sidebar-wrap'} onClick={() => setOpen(false)}>
-        <Sidebar />
+        <DispatchSidebar />
       </div>
       {open && <button className="mobile-overlay" onClick={() => setOpen(false)} aria-label="Close menu" />}
       <div className="main-area">

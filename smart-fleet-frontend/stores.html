@@ -1,0 +1,20 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Stores · RelayOps</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="css/style.css"></head><body>
+<main class="wrap">
+<p class="crumb">WORKSPACE / STORES</p>
+<div class="row sp"><div><h1>Stores &amp; loading slots</h1><p class="sub">Set operating hours, dock capacity and the minimum slot length for each store.</p></div><button class="btn p" id="add">+ Add store</button></div>
+<div class="card" style="margin-top:16px"><div class="tw"><table><thead><tr><th>Store</th><th>Type</th><th>Opens</th><th>Closes</th><th>Docks</th><th>Min. slot (min)</th><th></th></tr></thead><tbody id="tb"></tbody></table></div><p class="err" id="e" role="alert"></p>
+<div class="row" style="justify-content:flex-end"><button class="btn p" id="save">Save changes</button></div></div>
+</main>
+<script src="js/layout.js"></script>
+<script>
+const d=db();
+const row=(s,i)=>`<tr data-i="${i}"><td><input value="${esc(s.name)}" data-k="name" aria-label="Store name"></td><td><input value="${esc(s.type)}" data-k="type" aria-label="Type"></td><td><input type="time" value="${s.open}" data-k="open" aria-label="Opens"></td><td><input type="time" value="${s.close}" data-k="close" aria-label="Closes"></td><td><input type="number" min="1" max="10" value="${s.docks}" data-k="docks" aria-label="Docks"></td><td><select data-k="minSlot" aria-label="Minimum slot">${[15,30,45,60].map(m=>`<option ${m===s.minSlot?'selected':''}>${m}</option>`).join('')}</select></td><td><a href="#" data-del="${i}" style="color:var(--red)">Delete</a></td></tr>`;
+const draw=()=>$('#tb').innerHTML=d.stores.map(row).join('');
+$('#add').onclick=()=>{d.stores.push({id:'s'+Date.now(),name:'New store',type:'Retail store',open:'08:00',close:'18:00',docks:1,minSlot:30});draw()};
+$('#tb').onclick=e=>{const i=e.target.dataset.del;if(i==null)return;e.preventDefault();const s=d.stores[i];if(d.res.some(r=>r.store===s.id))return $('#e').textContent=s.name+' has reservations. Cancel them before deleting the store.';if(confirm('Delete '+s.name+'?')){d.stores.splice(i,1);draw()}};
+$('#tb').oninput=e=>{const k=e.target.dataset.k,i=e.target.closest('tr').dataset.i;d.stores[i][k]=['docks','minSlot'].includes(k)?+e.target.value:e.target.value};
+$('#save').onclick=()=>{const er=$('#e');er.style.color='';const bad=d.stores.find(s=>!s.name.trim()||!s.open||!s.close||t2m(s.close)<=t2m(s.open)||!(s.docks>0));if(bad)return er.textContent=(bad.name||'A store')+': enter a name, a closing time after opening, and at least 1 dock.';
+ const out=d.stores.find(s=>d.res.some(r=>r.store===s.id&&r.st!=='blocked'&&(t2m(r.s)<t2m(s.open)||t2m(r.e)>t2m(s.close))));if(out)return er.textContent=out.name+' has reservations outside these hours. Reschedule them first.';
+ save(d);er.style.color='var(--g)';er.textContent='Changes saved. The schedule now uses these hours and slot rules.'};
+draw();
+</script></body></html>

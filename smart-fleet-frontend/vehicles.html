@@ -1,0 +1,21 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vehicle management · RelayOps</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="css/style.css"></head><body>
+<main class="wrap">
+<p class="crumb">WORKSPACE / VEHICLES</p>
+<div class="row sp"><div><h1>Vehicle management</h1><p class="sub">Manage your company fleet, quantity capacity, and daily availability.</p></div><a class="btn p" href="vehicle-form.html">+ Add vehicle</a></div>
+<div class="grid g5" id="kpi" style="margin-top:16px"></div>
+<div class="card" style="margin-top:16px"><div class="row" style="margin-bottom:12px"><input id="q" type="search" placeholder="Search registration or driver…" aria-label="Search" style="max-width:300px"><select id="fst" aria-label="Status" style="width:auto"><option value="">All statuses</option><option>Available</option><option>In transit</option><option>Scheduled</option><option>Maintenance</option></select><select id="fsto" aria-label="Store" style="width:auto"><option value="">All stores</option></select><span class="mut" id="cnt"></span></div>
+<div class="tw"><table><thead><tr><th>Registration</th><th>Type</th><th>Capacity</th><th>Status</th><th>Availability / next trip</th><th>Driver</th><th>Store</th><th></th></tr></thead><tbody id="tb"></tbody></table></div>
+<p class="mut" style="margin:12px 0 0">Capacity is tracked in crates. Availability also accounts for assigned trips and maintenance windows.</p></div>
+</main>
+<script src="js/layout.js"></script>
+<script>
+const d=db();d.stores.forEach(s=>$('#fsto').add(new Option(s.name,s.name)));
+function draw(){
+ const n=s=>d.vehicles.filter(v=>v.status===s).length,q=$('#q').value.toLowerCase();
+ $('#kpi').innerHTML=[['Total vehicles',d.vehicles.length],['Available now',n('Available')],['In transit',n('In transit')],['Scheduled',n('Scheduled')],['In maintenance',n('Maintenance')]].map(([a,b])=>`<div class="card kpi"><span class="mut">${a}</span><b>${b}</b></div>`).join('');
+ const L=d.vehicles.map((v,i)=>({...v,i})).filter(v=>(!q||(v.reg+v.driver).toLowerCase().includes(q))&&(!$('#fst').value||v.status===$('#fst').value)&&(!$('#fsto').value||v.store===$('#fsto').value));
+ $('#cnt').textContent=L.length+' vehicles';
+ $('#tb').innerHTML=L.length?L.map(v=>`<tr><td><a href="vehicle-form.html?id=${v.i}"><b>${esc(v.reg)}</b></a></td><td>${esc(v.type)}</td><td>${v.cap} ${esc(v.unit.toLowerCase())}</td><td><span class="tag ${stTag(v.status)}">${v.status}</span></td><td${v.avail.startsWith('Delayed')?' style="color:var(--red)"':''}>${esc(v.avail)}</td><td>${esc(v.driver)||'<span class="mut">Unassigned</span>'}</td><td>${esc(v.store)}</td><td><a href="vehicle-form.html?id=${v.i}">Edit</a> · <a href="#" data-d="${v.i}" style="color:var(--red)">Delete</a></td></tr>`).join(''):'<tr><td colspan="8" class="mut">No vehicles match. Clear the filters or add a vehicle.</td></tr>'}
+$('#tb').onclick=e=>{const i=e.target.dataset.d;if(i==null)return;e.preventDefault();const v=d.vehicles[i];if(d.res.some(r=>r.veh===v.reg))return alert(v.reg+' has reserved trips. Reschedule them before deleting the vehicle.');if(confirm('Delete '+v.reg+'? This cannot be undone.')){d.vehicles.splice(i,1);save(d);draw()}};
+['q','fst','fsto'].forEach(i=>$('#'+i).oninput=draw);draw();
+</script></body></html>
