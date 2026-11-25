@@ -1,0 +1,10 @@
+const router=require('express').Router();
+const c=require('../controllers/bookingController');
+const g=require('../controllers/goodsController');
+router.route('/').get(c.list).post(c.create);
+router.route('/:id').get(c.get).put(c.update).patch(c.update).delete(c.remove);
+router.patch('/:id/review',c.review);
+router.post('/:id/handover',g.handover);
+router.post('/:id/receipt',g.receipt);
+router.post('/:id/discrepancies',g.discrepancy);
+module.exports=router;
